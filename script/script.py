@@ -6,7 +6,8 @@ from os import listdir
 # ----------------------------------------------------
 # Constantes
 # ----------------------------------------------------
-IMAGE_DIRECTORY = Path().parent.absolute() / "images"
+#IMAGE_DIRECTORY = Path().parent.absolute() / "images"
+IMAGE_DIRECTORY = Path().parent.absolute() / "images2"
 
 # ----------------------------------------------------
 # Funciones
@@ -20,7 +21,7 @@ def detectar_contorno_señal(img):
     h_inf_1=170
     h_sup_1=180
     h_inf_2=0
-    h_sup_2=5
+    h_sup_2=10
 
     lower_red_1 = np.array([h_inf_1,50,50])
     upper_red_1 = np.array([h_sup_1,255,255])
@@ -55,6 +56,49 @@ def detectar_contorno_señal(img):
 
     return contours[0]
 
+def reescalar_imagen(img):
+    """
+    Reescala la imagen para que se adapte a la pantalla
+    """
+    screen_width, screen_height = 1600, 900
+
+    # Tamano de la pantalla
+    height, width, _ = img.shape
+
+    # Factor de escala
+    width_scale = screen_width / width
+    height_scale = screen_height / height
+    scale = min(width_scale, height_scale)
+
+    new_width = int(width * scale)
+    new_height = int(height * scale)
+    resized_img = cv.resize(img, (new_width, new_height))
+
+    return resized_img
+
+def calcular_compacidad(contour):
+    """
+    Calcula la compacidad de un contorno
+    """
+    area = cv.contourArea(contour)
+    perimeter = cv.arcLength(contour,True)
+
+    try:
+        compacidad = 4*np.pi*area/perimeter**2
+    except ZeroDivisionError:
+        compacidad = 0
+
+    return compacidad
+
+def mostrar_imagenes(lista_imagenes):
+    """
+    Muestra una lista de imágenes en una ventana una a una
+    """
+    for tipo, img in lista_imagenes:
+        img = reescalar_imagen(img)
+        cv.imshow(f"{tipo}", img)
+        cv.waitKey(0)
+
 
 # ----------------------------------------------------
 # SCRIPT
@@ -62,8 +106,7 @@ def detectar_contorno_señal(img):
 
 # Lista de imágenes en la carpeta
 images = [cv.imread(str(IMAGE_DIRECTORY / image)) for image in listdir(IMAGE_DIRECTORY)]
-lista_circulares = []
-lista_triangulares = []
+senales_detectadas = []
 
 for img in images:
     # Se detecta el contorno de la señal
@@ -73,30 +116,32 @@ for img in images:
     
     for contour in contours:
         img_copy = img.copy()
-        # Se dibuja la boundingbox del contorno en la imagen
-        x,y,w,h = cv.boundingRect(contour)
-        cv.rectangle(img_copy,(x,y),(x+w,y+h),(0,255,0),2)
 
         # Calculo de la compacidad
-        area = cv.contourArea(contour)
-        perimeter = cv.arcLength(contour,True)
-
-        try:
-            compacidad = 4*np.pi*area/perimeter**2
-        except ZeroDivisionError:
-            compacidad = 0
+        compacidad = calcular_compacidad(contour)
 
         if compacidad >= 0.63 and compacidad <= 0.9:
-            lista_circulares.append(img)
-            print(f"Es un contorno circular. Compacidad: {compacidad}")
-        elif compacidad >= 0.5 and compacidad < 0.63:
-            lista_circulares.append(img)
-            print(f"Es un contorno triangular. Compacidad: {compacidad}")
+            # Rectangulo verde para contornos circulares
+            bounding_color = (0,255,0)
+            tipo = "circular"
+        elif compacidad >= 0.55 and compacidad < 0.63:
+            # Rectangulo azul para contornos triangulares
+            bounding_color = (255,0,0)
+            tipo = "triangular"
         else:
-            print(f"No es un contorno circular o triangular. Compacidad: {compacidad}")
+            print(f"Se ha detectado un contorno que no se puede clasificar en circular o triangular. Compacidad: {compacidad}")
+            break
+
+        # Se dibuja el contorno en la imagen
+        # cv.drawContours(img_copy, contour, -1, (0,255,0), 3)
+
+        # Se obtiene la bounding box del contorno
+        x,y,w,h = cv.boundingRect(contour)
+
+        # Se dibuja la bounding box en la imagen
+        cv.rectangle(img_copy,(x,y),(x+w,y+h),bounding_color,4)
+        titulo = f"Es un contorno {tipo}. Compacidad: {compacidad}"
+        senales_detectadas.append((titulo, img_copy))
 
 
-        # Se muestra la imagen
-        cv.imshow("imagen", img_copy)
-        cv.waitKey(0)
-
+mostrar_imagenes(senales_detectadas)
