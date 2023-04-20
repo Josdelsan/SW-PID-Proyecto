@@ -130,7 +130,7 @@ for img in images:
             tipo = "triangular"
         else:
             print(f"Se ha detectado un contorno que no se puede clasificar en circular o triangular. Compacidad: {compacidad}")
-            break
+            continue
 
         # Se dibuja el contorno en la imagen
         # cv.drawContours(img_copy, contour, -1, (0,255,0), 3)
