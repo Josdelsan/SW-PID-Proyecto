@@ -52,9 +52,11 @@ def detectar_contorno_señal(img):
     # Contorno de la señal
     # ------------------------------------------------
     contours = cv.findContours(forms, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    #biggest_contour = max(contours[0], key=cv.contourArea)
+    contours = contours[0]
+    biggest_contour = max(contours, key=cv.contourArea)
+    contours = [c for c in contours if cv.contourArea(c) > (cv.contourArea(biggest_contour)*0.4)]
 
-    return contours[0]
+    return contours
 
 def reescalar_imagen(img):
     """
@@ -99,6 +101,30 @@ def mostrar_imagenes(lista_imagenes):
         cv.imshow(f"{tipo}", img)
         cv.waitKey(0)
 
+def resaltar_contornos(images) -> list:
+    """
+    Devuelve una lista de imagenes con la bounding box de los contornos.
+    Si hay más de un contorno, se resaltan todos.
+    """
+    result = []
+
+    for img in images:
+        img_copy = img.copy()
+        # Se detecta el contorno de la señal
+        contours = detectar_contorno_señal(img_copy)
+        
+        for contour in contours:
+            # Se obtiene la bounding box del contorno
+            x,y,w,h = cv.boundingRect(contour)
+
+            # Se dibuja la bounding box en la imagen
+            cv.rectangle(img_copy,(x,y),(x+w,y+h),(0,255,0),4)
+        result.append(('Imagen',img_copy))
+
+    return result
+
+
+
 
 # ----------------------------------------------------
 # SCRIPT
@@ -110,9 +136,8 @@ senales_detectadas = []
 
 for img in images:
     # Se detecta el contorno de la señal
+    
     contours = detectar_contorno_señal(img)
-    biggest_contour = max(contours, key=cv.contourArea)
-    contours = [c for c in contours if cv.contourArea(c) > (cv.contourArea(biggest_contour)*0.4)]
     
     for contour in contours:
         img_copy = img.copy()
@@ -142,6 +167,5 @@ for img in images:
         cv.rectangle(img_copy,(x,y),(x+w,y+h),bounding_color,4)
         titulo = f"Es un contorno {tipo}. Compacidad: {compacidad}"
         senales_detectadas.append((titulo, img_copy))
-
 
 mostrar_imagenes(senales_detectadas)
