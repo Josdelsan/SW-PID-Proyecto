@@ -75,3 +75,14 @@ def load_images(path : Path) -> Tuple[np.ndarray, str]:
     """
     images = [(cv.imread(str(path / image)), image)for image in listdir(path)]
     return images
+
+# --------------------------------------------------------------------------
+def load_image(path : str) -> np.ndarray:
+    """
+    Carga una imagen de una ruta.
+
+    :param path: Ruta de la imagen
+    :return: Imagen
+    """
+    image = cv.imread(str(path))
+    return image

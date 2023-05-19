@@ -7,7 +7,7 @@
 # Imports (standard, third party, local)
 import cv2 as cv
 import numpy as np
-from typing import Tuple
+from typing import Tuple, List
 
 # --------------------------------------------------------------------------
 def apply_red_mask(img) -> np.ndarray:
@@ -98,5 +98,25 @@ def highlight_contours(img, contour) -> Tuple[np.ndarray, np.ndarray]:
 
     return img, img_recortada
 
+# --------------------------------------------------------------------------
+def crop_image(img, contours) -> List[np.ndarray]:
+    """
+    Recorta la imagen.
+
+    :param img: Imagen BGR.
+    :param contours: contornos a recortar.
+    :return: Lista de imágenes recortadas.
+    """
+    images = []
+
+    for c in contours:
+        # Se recorta la imagen
+        x,y,w,h = cv.boundingRect(c)
+        img_recortada = img[y:y+h,x:x+w]
+        # Redimensionamos la imagen
+        img_recortada = cv.resize(img_recortada, (128, 128))
+        images.append(img_recortada)
+
+    return images
 
     
