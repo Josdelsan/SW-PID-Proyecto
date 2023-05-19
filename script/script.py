@@ -125,8 +125,8 @@ def mostrar_imagen(img, titulo):
 # ----------------------------------------------------
 
 # Lista de imágenes en la carpeta
-# images = [cv.imread(str(IMAGE_DIRECTORY / image)) for image in listdir(IMAGE_DIRECTORY)]
-images = [cv.imread("images/circulo_st30.jpg")]
+images = [cv.imread(str(IMAGE_DIRECTORY / image)) for image in listdir(IMAGE_DIRECTORY)]
+#images = [cv.imread("images/circulo_st30.jpg")]
 senales_detectadas = []
 
 # Cargar modelo
@@ -165,10 +165,10 @@ for img in images:
 
         # Se recorta la imagen para quedarse solo con la señal
         img_recortada = img_copy[y:y+h, x:x+w]
-        img_recortada = cv.resize(img_recortada, (30,30))
+        img_recortada = cv.resize(img_recortada, (64,64))
         img_recortada = cv.cvtColor(img_recortada, cv.COLOR_BGR2GRAY)
         img_recortada = np.array(img_recortada)
-        img_recortada = img_recortada.reshape(1,30,30,1)
+        img_recortada = img_recortada.reshape(1,64,64,1)
 
         # Make predictions
         predictions = modelo.predict(img_recortada)

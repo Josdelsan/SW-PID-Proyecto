@@ -130,3 +130,5 @@ dmypy.json
 
 cnn/Train
 cnn/Train2
+cnn/train_data
+
