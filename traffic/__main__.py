@@ -3,6 +3,10 @@
 # Descripción: Módulo principal de la aplicación
 # --------------------------------------------------------------------------
 
+# IMPORTANT
+from multiprocessing import freeze_support
+freeze_support()
+
 # Imports (standard, third party, local)
 import sys
 
@@ -23,5 +27,4 @@ if __name__ == "__main__":
     window.show()
     sys.exit(app.exec_())
 
-    #app.run()
 

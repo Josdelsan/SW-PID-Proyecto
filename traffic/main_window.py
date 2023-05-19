@@ -5,7 +5,7 @@
 
 # Imports (standard, third party, local)
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QFileDialog, QVBoxLayout, QWidget, QHBoxLayout
-from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QImage
+from PyQt5.QtGui import QFont, QPixmap, QImage
 from PyQt5.QtCore import Qt
 import numpy as np
 
@@ -14,7 +14,7 @@ from traffic.utils import single_image_classification, predict_from_images_folde
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Image Processing App")
+        self.setWindowTitle("Predicción de señales de tráfico")
         self.setGeometry(300, 200, 400, 200)  # Adjust the window size and position
 
         layout = QVBoxLayout()
